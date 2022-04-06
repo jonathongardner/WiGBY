@@ -1,7 +1,7 @@
 package camera
 
 import (
-	// "fmt"
+	// "log"
 
 	"github.com/pion/mediadevices"
 	"github.com/pion/mediadevices/pkg/frame"

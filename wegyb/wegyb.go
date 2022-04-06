@@ -1,7 +1,7 @@
 package wegyb
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"io/fs"
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("Request to %v from %v by %v\n", r.URL.Path, r.RemoteAddr, r.Method)
+		log.Printf("Request to %v from %v by %v\n", r.URL.Path, r.RemoteAddr, r.Method)
 		next.ServeHTTP(w, r)
 	})
 }
@@ -36,20 +36,20 @@ func ListenAndServe(host string, ui fs.FS) {
 
 	  session, err := connection.AddPeer(offer, cam.Track)
 	  if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 	    http.Error(w, "Couldnt connect!", http.StatusBadRequest)
 	    return
 	  }
 
 		response, err := json.Marshal(session)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Error(w, "Couldnt create response!", http.StatusBadRequest)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(response); err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			http.Error(w, "Couldnt write response!", http.StatusBadRequest)
 		}
 	})

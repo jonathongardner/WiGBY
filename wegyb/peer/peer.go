@@ -1,7 +1,7 @@
 package peer
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/pion/mediadevices"
 	"github.com/pion/webrtc/v3"
@@ -40,12 +40,12 @@ func (con *connection) AddPeer(offer webrtc.SessionDescription, cameraTrack medi
 	// might need to remove thie once its done
 	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
 		// closed, failed, disconnected
-		fmt.Printf("Connection State has changed %s \n", connectionState.String())
+		log.Printf("Connection State has changed %s \n", connectionState.String())
 	})
 
 	for _, track := range cameraTrack.GetTracks() {
 		track.OnEnded(func(err error) {
-			fmt.Printf("Track (ID: %s) ended with error: %v\n", track.ID(), err)
+			log.Printf("Track (ID: %s) ended with error: %v\n", track.ID(), err)
 		})
 
 		_, err = peerConnection.AddTransceiverFromTrack(track,
