@@ -38,7 +38,7 @@ export default class Video {
   }
   getRemoteAnswer = async () => {
     const offer = this.pc.localDescription;
-    const response = await fetch('/api/offer', {
+    const response = await fetch('/api/v1/offer', {
         body: JSON.stringify({ sdp: offer.sdp, type: offer.type }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST'

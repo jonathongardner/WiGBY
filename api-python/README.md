@@ -1,2 +1,0 @@
-# WeGYB API
-## Development
