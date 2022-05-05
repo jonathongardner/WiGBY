@@ -4,6 +4,9 @@
       <router-link :to="{ name: 'Ride' }">Ride</router-link>
     </div>
     <div>
+      <router-link :to="{ name: 'Camera' }">Camera</router-link>
+    </div>
+    <div>
       <router-link :to="{ name: 'Settings' }">Settings</router-link>
     </div>
     <div>

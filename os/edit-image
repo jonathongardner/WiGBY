@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [[ $1 = "mount" ]]; then
+  if [[ $2 = "boot" ]]; then
+    echo "mounting boot..."
+    sudo mkdir /media/jonathon/boot
+    sudo mount -o loop,rw,sync,offset=4194304 tmp/2022-04-04-raspios-bullseye-wegyb.img /media/jonathon/boot/
+  elif [[ $2 = "rootfs" ]]; then
+    echo "mounting rootfs..."
+    sudo mkdir /media/jonathon/rootfs
+    sudo mount -o loop,rw,sync,offset=272629760 2022-04-04-raspios-bullseye-wegyb.img /media/jonathon/rootfs/
+  else
+    echo "Unknown partition"
+  fi
+elif [[ $1 = "umount" ]]; then
+  if [[ $2 = "boot" ]]; then
+    echo "umounting boot..."
+    sudo umount /media/jonathon/boot
+    sudo rm -r /media/jonathon/boot
+  elif [[ $2 = "rootfs" ]]; then
+    echo "umounting rootfs..."
+    sudo umount /media/jonathon/rootfs
+    sudo rm -r /media/jonathon/rootfs
+  else
+    echo "Unknown partition"
+  fi
+else
+  echo "Unknown command"
+  exit 1
+fi
+
+# $ sudo mkdir /media/jonathon/boot
+# $ fdisk -l 2022-04-04-raspios-bullseye-wegyb.img
+# Disk 2022-04-04-raspios-bullseye-armhf-lite.img: 1.9 GiB, 2017460224 bytes, 3940352 sectors
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+# Disklabel type: dos
+# Disk identifier: 0x7d5a2870
+#
+# Device                                      Boot  Start     End Sectors  Size Id Type
+# 2022-04-04-raspios-bullseye-armhf-lite.img1        8192  532479  524288  256M  c W95 FAT32 (LBA)
+# 2022-04-04-raspios-bullseye-armhf-lite.img2      532480 3940351 3407872  1.6G 83 Linux
+# $ sudo mount -o loop,rw,sync,offset=4194304 2022-04-04-raspios-bullseye-wegyb.img /media/jonathon/boot/
+# $ ...
+# $ sudo umount /media/jonathon/boot
+# $ sudo rm -r /media/jonathon/boot
+
+# $ sudo mkdir /media/jonathon/rootfs
+# $ fdisk -l 2022-04-04-raspios-bullseye-wegyb.img
+# Disk 2022-04-04-raspios-bullseye-armhf-lite.img: 1.9 GiB, 2017460224 bytes, 3940352 sectors
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+# Disklabel type: dos
+# Disk identifier: 0x7d5a2870
+#
+# Device                                      Boot  Start     End Sectors  Size Id Type
+# 2022-04-04-raspios-bullseye-armhf-lite.img1        8192  532479  524288  256M  c W95 FAT32 (LBA)
+# 2022-04-04-raspios-bullseye-armhf-lite.img2      532480 3940351 3407872  1.6G 83 Linux
+# $ sudo mount -o loop,rw,sync,offset=272629760 2022-04-04-raspios-bullseye-wegyb.img /media/jonathon/rootfs/
+# $ ...
+# $ sudo umount /media/jonathon/rootfs
+# $ sudo rm -r /media/jonathon/rootfs

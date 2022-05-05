@@ -18,7 +18,7 @@ import MyBack from '@/components/ride/my-back.vue'
 import Tracker from '@/helpers/tracker'
 
 export default {
-  name: 'Home',
+  name: 'Ride',
   components: {
     Stat, Controls, MyBack
   },

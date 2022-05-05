@@ -1,0 +1,4 @@
+tmp/*
+!tmp/.keep
+rootfs/iotwifi
+rootfs/wegyb-armv7

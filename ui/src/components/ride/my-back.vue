@@ -1,20 +1,18 @@
 <template>
-  <div v-show='showVideo' class='my-back'>
-    <video ref="myBack" autoplay muted playsinline="true"></video>
-  </div>
+  <my-back v-show='showVideo' @receivedStream='receivedStream' @receivedMessage='receivedMessage' />
 </template>
 
 <script>
 import { promiseTimeout } from '@/helpers/utils'
-import Video from '@/helpers/video'
+import MyBack from '@/components/common/my-back.vue'
 
 export default {
   name: 'my-back',
+  components: { MyBack },
   data () {
     return {
       showVideo: true,
       toggleTimeout: null,
-      videoStream: new Video(this.receivedStream, this.receivedMessage)
     }
   },
   inject: ['touchEvents'],
@@ -37,11 +35,8 @@ export default {
         this.toggleTimeout = null
       }
     },
-    receivedStream (event) {
-      if (event.track.kind == 'video') {
-        this.$refs.myBack.srcObject = event.streams[0]
-        this.peak()
-      }
+    receivedStream () {
+      this.peak()
     },
     receivedMessage () { // (data) {
       this.peak()
@@ -53,21 +48,13 @@ export default {
 
     this.touchEvents.on('tap', this.peak)
     this.touchEvents.on('dbltap', this.toggle)
-    this.videoStream.start(this.receivedStream)
   },
   async unmounted () {
     this.touchEvents.off('tap')
     this.touchEvents.off('dbltap')
-    await this.videoStream.stop()
   }
 }
 </script>
 
 <style scoped lang="scss">
-.my-back {
-  video {
-    max-width: 100%;
-    max-height: 100%;
-  }
-}
 </style>

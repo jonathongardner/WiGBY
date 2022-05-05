@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import Camera from '../views/Camera.vue'
 import Ride from '../views/Ride.vue'
 
 const routes = [
@@ -11,6 +12,11 @@ const routes = [
     path: '/ride',
     name: 'Ride',
     component: Ride,
+    meta: { back: true }
+  }, {
+    path: '/camera',
+    name: 'Camera',
+    component: Camera,
     meta: { back: true }
   }, {
     path: '/help',
