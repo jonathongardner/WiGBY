@@ -12,6 +12,7 @@
     <div>
       <router-link :to="{ name: 'Help' }">Help</router-link>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -22,7 +23,6 @@
 export default {
   name: 'Home',
   components: {
-    // HelloWorld
   }
 }
 </script>

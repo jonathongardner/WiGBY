@@ -5,18 +5,9 @@ import Ride from '../views/Ride.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
-  }, {
     path: '/ride',
     name: 'Ride',
     component: Ride,
-    meta: { back: true }
-  }, {
-    path: '/camera',
-    name: 'Camera',
-    component: Camera,
     meta: { back: true }
   }, {
     path: '/help',
@@ -28,7 +19,16 @@ const routes = [
     name: 'Settings',
     component: () => import('../views/Settings.vue'),
     meta: { back: true }
-  }
+  }, {
+    path: '/',
+    name: 'Home',
+    component: Home,
+    children: [{
+      path: '/camera',
+      name: 'Camera',
+      component: Camera,
+    }]
+  },
 ]
 
 const router = createRouter({

@@ -12,6 +12,11 @@ export default {
   components: {
     NavBar
   },
+  // created() {
+  //   this.$router.options.routes.forEach(route => {
+  //     console.log({ name: route.name , path: route.path })
+  //   })
+  // }
 }
 </script>
 

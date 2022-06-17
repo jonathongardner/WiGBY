@@ -6,7 +6,8 @@ module.exports = {
       // proxy all requests starting with /api to jsonplaceholder
       [`${publicPath}api`]: {
         target: process.env.VUE_PROXY,
-        changeOrigin: true
+        changeOrigin: true,
+        ws: true,
       }
     }
   }

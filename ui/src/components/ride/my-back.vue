@@ -1,5 +1,5 @@
 <template>
-  <my-back v-show='showVideo' @receivedStream='receivedStream' @receivedMessage='receivedMessage' />
+  <my-back v-show='showVideo' />
 </template>
 
 <script>
@@ -7,7 +7,7 @@ import { promiseTimeout } from '@/helpers/utils'
 import MyBack from '@/components/common/my-back.vue'
 
 export default {
-  name: 'my-back',
+  name: 'my-back-with-toggle',
   components: { MyBack },
   data () {
     return {

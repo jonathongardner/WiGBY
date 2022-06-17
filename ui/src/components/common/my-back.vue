@@ -1,48 +1,66 @@
 <template>
   <div class='my-back'>
-    <video ref="myBack" autoplay muted="muted" playsinline="playsinline"></video>
+    <!-- <img ref="myBack" src="https://lh5.googleusercontent.com/proxy/t4bXQKCU3IHZGoeMjvGA8yls6oMw_5xNoIvrlKEortAnvYjLUo__qLpYl1nJJW2gRQg2DD-P3hiN3kk9D_HA-AV9m0BaKxPGKb2PUtDgiPrsCL5_QFNq0hOqmL72YKYZYEMoO0ioIIRqtzIzWaynXZ4OUXBHMfg29JnxmPH_VivNoqkhSGpoE1m_LeUrmQ6ukhs5aH5IiDIL0LHFLWNYlhg0KXjyduNeO3_TeFJH0_lyDqo=s1920-w1920-h1080-fcrop64=1,00001999fffff3c7-k-no-nd-mv"> -->
+    <img ref="myBack">
   </div>
 </template>
 
 <script>
 import { promiseTimeout } from '@/helpers/utils'
-import Video from '@/helpers/video'
 
 export default {
   name: 'my-back',
   data () {
     return {
-      videoStream: new Video(this.receivedStream, this.receivedMessage)
+      socket: null,
     }
   },
   methods: {
-    receivedStream (event) {
-      if (event.track.kind == 'video') {
-        this.$refs.myBack.srcObject = event.streams[0]
-        this.$emit('receivedMessage')
-      }
+    setImage ({ data }) {
+      // console.log(data)
+      // if (!this.$refs.myBack) {
+      //   this.socket.close()
+      // }
+      this.$refs.myBack.src = 'data:image/jpeg;base64,' + data;
     },
-    receivedMessage () { // (data) {
-      this.$emit('receivedMessage')
-    }
   },
   async created () {
     // somehow picking up click to get here, so wait a second to add callback
     await promiseTimeout(1000)
 
-    this.videoStream.start(this.receivedStream)
+    this.socket = new WebSocket(`ws://${location.host}/api/v1/mjpeg`)
+    // this.socket.binaryType = "arraybuffer"
+    this.socket.onmessage = this.setImage
   },
   async unmounted () {
-    await this.videoStream.stop()
+    this.socket.close()
   }
 }
 </script>
 
 <style scoped lang="scss">
 .my-back {
-  video {
-    max-width: 100%;
-    max-height: 100%;
+  .close {
+    color: white;
+    position: absolute;
+    right: 15px;
+    top: 0px;
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .close {
+  }
+  img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
   }
 }
 </style>
