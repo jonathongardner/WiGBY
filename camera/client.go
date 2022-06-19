@@ -1,4 +1,4 @@
-package cameraHub
+package camera
 
 import (
 	"time"
@@ -13,7 +13,7 @@ const (
 	writeWait = 2 * time.Second
 
 	// time between sending frames
-	frameInterval = 50 * time.Millisecond
+	frameInterval = 50 * time.Millisecond // 50
 	// frameInterval = 5 * time.Second
 )
 
@@ -40,7 +40,7 @@ type Client struct {
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *Client) WritePump() {
+func (c *Client) writePump() {
 	defer c.conn.Close()
 	for {
 		// only send fram every x Milliseconds

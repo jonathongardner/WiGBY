@@ -3,8 +3,9 @@ package server
 import (
 	"net/http"
 	"io/fs"
+	"context"
 
-	"github.com/jonathongardner/wegyb/cameraHub"
+	"github.com/jonathongardner/wegyb/camera"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/websocket"
@@ -21,45 +22,44 @@ var upgrader = websocket.Upgrader{
 
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("Request to %v from %v by %v\n", r.URL.Path, r.RemoteAddr, r.Method)
-		next.ServeHTTP(w, r)
+    ipAddress := r.Header.Get("X-Real-Ip")
+    if ipAddress == "" {
+        ipAddress = r.Header.Get("X-Forwarded-For")
+    }
+    if ipAddress == "" {
+        ipAddress = r.RemoteAddr
+    }
+		log.Infof("Request to %v from %v by %v\n", r.URL.Path, ipAddress, r.Method)
+
+		ctx := context.WithValue(r.Context(), "ipAddress", ipAddress)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func ListenAndServe(host string, device int, ui fs.FS) {
+func NewServer(host string, ch *camera.Hub, ui fs.FS) (*http.Server) {
 	// apiV1 := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 	// })
 	// http.Handle("/api/v1/offer", middleware(apiV1))
-	ch := cameraHub.NewHub()
-	go ch.Run()
-	go ch.StartCamera(device)
+
+	log.Infof("Listening at %v", host)
 
 	apiV1Mjpeg := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ipAddress := readUserIP(r)
+		ipAddress := r.Context().Value("ipAddress").(string)
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Error(err)
 			return
 		}
-		cl := ch.NewClient(conn, ipAddress, "")
-		// Allow collection of memory referenced by the caller by doing all work in
-	  go cl.WritePump()
+		ch.NewClient(conn, ipAddress, "")
 	})
-	http.Handle("/api/v1/mjpeg", middleware(apiV1Mjpeg))
-	http.Handle("/", middleware(http.FileServer(http.FS(ui))))
 
-	// Block forever
-	log.Infof("Listening at %v", host)
-	http.ListenAndServe(host, nil)
-}
+	serverMux := http.NewServeMux()
+	serverMux.Handle("/api/v1/mjpeg", middleware(apiV1Mjpeg))
+	serverMux.Handle("/", middleware(http.FileServer(http.FS(ui))))
 
-func readUserIP(r *http.Request) string {
-    IPAddress := r.Header.Get("X-Real-Ip")
-    if IPAddress == "" {
-        IPAddress = r.Header.Get("X-Forwarded-For")
-    }
-    if IPAddress == "" {
-        IPAddress = r.RemoteAddr
-    }
-    return IPAddress
+	return &http.Server{
+		Addr:    host,
+		Handler: serverMux,
+	}
 }

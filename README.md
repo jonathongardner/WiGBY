@@ -5,3 +5,9 @@ behind them. How it works:
   - Setup the RaspberryPi camera facing the back of the bike
   - Connect to the RaspberryPi network (WeGBY)
   - Navigate to the SPA (local.WeGBY.app) and start riding
+
+# Docker
+## Build
+```sh
+docker build -t wegyb .
+```
