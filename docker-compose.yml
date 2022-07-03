@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev-api
+    image: wegyb-dev-api
+    ports:
+      - 3000:3000
+    devices:
+      - /dev/video0
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev-ui
+    image: wegyb-dev-ui
+    environment:
+      - VUE_PROXY=http://api:3000
+    volumes:
+      - ./ui/:/node/src/wegyb
+    depends_on:
+      - api
+    ports:
+      - 8080:8080

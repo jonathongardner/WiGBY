@@ -11,3 +11,8 @@ behind them. How it works:
 ```sh
 docker build -t wegyb .
 ```
+
+# Dev
+```sh
+docker compose up
+```
