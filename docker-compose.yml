@@ -7,6 +7,10 @@ services:
     image: wegyb-dev-api
     ports:
       - 3000:3000
+    environment:
+      - WEGYB_VISION_XML=/go/src/wegyb/config/cars1.xml
+    volumes:
+      - ./config:/go/src/wegyb/config
     devices:
       - /dev/video0
   ui:

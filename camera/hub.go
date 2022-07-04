@@ -42,7 +42,7 @@ func (h *Hub) NewClient(conn *websocket.Conn, ipAddress string, name string) (*C
 	return cl
 }
 
-func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
+func (h *Hub) Run(deviceID int, vision *Vision, ctx context.Context) (error) {
 	var wgClients sync.WaitGroup
 	//-----------Camera Setup---------------
 	webcam, err := gocv.OpenVideoCapture(deviceID)
@@ -94,6 +94,8 @@ func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
 			if img.Empty() {
 				continue
 			}
+			// TODO: might should move to a seperate routine to process and send to ui
+			vision.find(&img)
 
 			buf, _ := gocv.IMEncode(".jpg", img)
 			bytes := buf.GetBytes()
@@ -110,6 +112,11 @@ func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
 				}
 			}
 			buf.Close()
+			// select {
+			// case webcam.save <- img:
+			// default:
+			// // default in case its still writing OR recording is off
+			// }
 		}
 	}
 }

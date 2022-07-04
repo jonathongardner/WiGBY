@@ -32,6 +32,12 @@ var serverCommand =  &cli.Command{
 			Usage:   "Port to publich to",
 			EnvVars: []string{"WEGYB_PORT"},
 		},
+		&cli.StringFlag{
+			Name:    "vision-xml",
+			Value:   "",
+			Usage:   "Cascade Classifier car xml file",
+			EnvVars: []string{"WEGYB_VISION_XML"},
+		},
 		&cli.IntFlag{
 			Name:    "device",
 			Aliases: []string{"d"},
@@ -42,6 +48,7 @@ var serverCommand =  &cli.Command{
 	},
 	Action:  func(c *cli.Context) error {
 		hostPort := c.String("host") + ":" + c.String("port")
+		visionConfig := c.String("vision-xml")
 		deviceId := c.Int("device")
 
 		log.Info("Starting...")
@@ -61,8 +68,10 @@ var serverCommand =  &cli.Command{
 
 		// setup camera and start capturing frames in another routine
 		ch := camera.NewHub()
+		vision := camera.NewVision(visionConfig)
+
 		g.Go(func() error {
-			return ch.Run(deviceId, gCtx)
+			return ch.Run(deviceId, vision, gCtx)
 		})
 
 		// create server, and start in another thread with another thread lstening for closing
