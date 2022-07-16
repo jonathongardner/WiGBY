@@ -13,6 +13,12 @@ docker build -t wegyb .
 ```
 
 # Dev
+## Docker API
+```sh
+docker build -t wegyb-dev-api -f Dockerfile.dev-api .
+docker run --rm -it --device /dev/video0 -p 3000:3000 -v $PWD/tmp:/video wegyb-dev-api serve --output /video
+```
+## Docker Compose
 ```sh
 docker compose up
 ```

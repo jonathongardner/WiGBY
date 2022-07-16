@@ -39,9 +39,16 @@ var serverCommand =  &cli.Command{
 			Usage:   "Camera device to use",
 			EnvVars: []string{"WEGYB_DEVICE"},
 		},
+		&cli.StringFlag{
+			Name:    "output",
+			Value:   "",
+			Usage:   "Folder to save recordings",
+			EnvVars: []string{"WEGYB_OUTPUT"},
+		},
 	},
 	Action:  func(c *cli.Context) error {
 		hostPort := c.String("host") + ":" + c.String("port")
+		output := c.String("output")
 		deviceId := c.Int("device")
 
 		log.Info("Starting...")
@@ -62,7 +69,7 @@ var serverCommand =  &cli.Command{
 		// setup camera and start capturing frames in another routine
 		ch := camera.NewHub()
 		g.Go(func() error {
-			return ch.Run(deviceId, gCtx)
+			return ch.Run(deviceId, output, gCtx)
 		})
 
 		// create server, and start in another thread with another thread lstening for closing

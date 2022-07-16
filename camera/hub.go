@@ -42,7 +42,7 @@ func (h *Hub) NewClient(conn *websocket.Conn, ipAddress string, name string) (*C
 	return cl
 }
 
-func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
+func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 	var wgClients sync.WaitGroup
 	//-----------Camera Setup---------------
 	webcam, err := gocv.OpenVideoCapture(deviceID)
@@ -56,12 +56,28 @@ func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
 	img := gocv.NewMat()
 	defer img.Close()
 
+	// create recorder
+	recorder := NewRecorder(output)
+	if output != "" {
+		log.Infof("Saving video to %v", output)
+		wgClients.Add(1)
+		go func() {
+			defer wgClients.Done()
+			err := recorder.writePump()
+			// error could be raised here, need to maybe catch and exit idk
+			if err != nil {
+				log.Infof("Error trying to save: %v", err)
+			}
+		}()
+	}
+
 	defer func() {
 		log.Infof("Hub finishing running, closing %v clients", len(h.clients))
 		for _, client := range h.clients {
 			delete(h.clients, client.Identifier)
 			close(client.send)
 		}
+		close(recorder.send)
 		// wait for clients to all be closed
 		wgClients.Wait()
 	}()
@@ -110,6 +126,13 @@ func (h *Hub) Run(deviceID int, ctx context.Context) (error) {
 				}
 			}
 			buf.Close()
+
+			// send image to be saved, skip if video still writing or
+			// if maybe its closed
+			select {
+			case recorder.send <- img:
+			default:
+			}
 		}
 	}
 }

@@ -5,10 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile.dev-api
     image: wegyb-dev-api
+    volumes:
+      - ./:/go/src/wegyb
     ports:
       - 3000:3000
     devices:
       - /dev/video0
+    command: serve
   ui:
     build:
       context: .
