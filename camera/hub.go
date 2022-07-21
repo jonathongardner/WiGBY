@@ -112,7 +112,7 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 			}
 
 			buf, _ := gocv.IMEncode(".jpg", img)
-			bytes := buf.GetBytes()
+			bytes := buf.GetBytes() // append(buf.GetBytes(), timeInBytes()...)
 			base64String := base64.StdEncoding.EncodeToString(bytes)
 			base64Bytes := []byte(base64String) // ~ Was 74029, Is 98708
 			// log.Infof("Was %v, Is %v", len(bytes), len(base64Bytes))
@@ -136,3 +136,17 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 		}
 	}
 }
+// import (
+// 	"unsafe"
+// 	"time"
+// )
+//
+// func timeInBytes() []byte {
+// 	num := time.Now().UnixMilli()
+// 	size := int(unsafe.Sizeof(num))
+// 	arr := make([]byte, size)
+// 	for i := 0 ; i < size ; i++ {
+// 		arr[i] = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
+// 	}
+// 	return arr
+// }

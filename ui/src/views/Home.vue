@@ -7,6 +7,9 @@
       <router-link :to="{ name: 'Camera' }">Camera</router-link>
     </div>
     <div>
+      <router-link :to="{ name: 'Recordings' }">Recordings</router-link>
+    </div>
+    <div>
       <router-link :to="{ name: 'Settings' }">Settings</router-link>
     </div>
     <div>

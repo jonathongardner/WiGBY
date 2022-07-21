@@ -6,12 +6,13 @@ services:
       dockerfile: Dockerfile.dev-api
     image: wegyb-dev-api
     volumes:
-      - ./:/go/src/wegyb
+      - ./tmp:/video
+      - /etc/localtime:/etc/localtime
     ports:
       - 3000:3000
     devices:
       - /dev/video0
-    command: serve
+    command: serve --output /video
   ui:
     build:
       context: .

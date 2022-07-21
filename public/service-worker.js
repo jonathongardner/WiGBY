@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.6003b8e5511a18ebc9215ef5f88ecae1.js"
+  "/precache-manifest.3d2588122d59e70d44e2c2f408f7d73d.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "we-got-your-back"});

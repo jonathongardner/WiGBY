@@ -9,6 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/websocket"
+	"github.com/gorilla/mux"
 )
 
 var upgrader = websocket.Upgrader{
@@ -37,7 +38,7 @@ func middleware(next http.Handler) http.Handler {
 	})
 }
 
-func NewServer(host string, ch *camera.Hub, ui fs.FS) (*http.Server) {
+func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*http.Server) {
 	// apiV1 := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 	// })
 	// http.Handle("/api/v1/offer", middleware(apiV1))
@@ -54,9 +55,34 @@ func NewServer(host string, ch *camera.Hub, ui fs.FS) (*http.Server) {
 		ch.NewClient(conn, ipAddress, "")
 	})
 
-	serverMux := http.NewServeMux()
-	serverMux.Handle("/api/v1/mjpeg", middleware(apiV1Mjpeg))
-	serverMux.Handle("/", middleware(http.FileServer(http.FS(ui))))
+	apiV1Videos := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		videoFiles(videoLocation).Write(w)
+	})
+	apiV1Video := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		videoFile(videoLocation, vars["filename"]).Write(w)
+	})
+	deleteApiV1Video := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		deleteVideoFile(videoLocation, vars["filename"]).Write(w)
+	})
+
+	allElse := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewErrorResponse("Unknown route", 404, nil).Write(w)
+	})
+
+	serverMux := mux.NewRouter()
+	serverMux.Use(middleware)
+	// websocket for streaming
+	serverMux.Handle("/api/v1/mjpeg", apiV1Mjpeg).Methods("GET")
+	// video crud
+	serverMux.Handle("/api/v1/recordings", apiV1Videos).Methods("GET")
+	serverMux.Handle("/api/v1/recordings/{filename}", apiV1Video).Methods("GET")
+	serverMux.Handle("/api/v1/recordings/{filename}", deleteApiV1Video).Methods("DELETE")
+	// ui
+	serverMux.PathPrefix("/").Handler(http.FileServer(http.FS(ui))).Methods("GET")
+	// fallback
+	serverMux.PathPrefix("/").Handler(allElse)
 
 	return &http.Server{
 		Addr:    host,

@@ -73,7 +73,7 @@ var serverCommand =  &cli.Command{
 		})
 
 		// create server, and start in another thread with another thread lstening for closing
-		httpServer := server.NewServer(hostPort, ch, ui)
+		httpServer := server.NewServer(hostPort, output, ch, ui)
 		g.Go(func() error {
 			err := httpServer.ListenAndServe()
 			if err != http.ErrServerClosed {

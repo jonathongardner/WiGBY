@@ -16,9 +16,15 @@ docker build -t wegyb .
 ## Docker API
 ```sh
 docker build -t wegyb-dev-api -f Dockerfile.dev-api .
-docker run --rm -it --device /dev/video0 -p 3000:3000 -v $PWD/tmp:/video wegyb-dev-api serve --output /video
+docker run --rm -it --device /dev/video0 -p 3000:3000 -v $PWD/tmp:/video -v /etc/localtime:/etc/localtime wegyb-dev-api serve --output /video
 ```
 ## Docker Compose
 ```sh
 docker compose up
 ```
+
+
+# TODO
+1. websocket blank screen if not updated in x
+1. fix recording
+1. add car identifier
