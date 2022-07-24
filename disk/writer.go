@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"fmt"
 	"time"
 	"path/filepath"
 
@@ -17,6 +18,15 @@ type Writer struct {
 	fps          float64
 	width        int
 	height       int
+}
+
+type MissingWriter struct {}
+func (e *MissingWriter) Error() string {
+    return fmt.Sprintf("Missing Writer")
+}
+func IsMissingWriter(err error) bool {
+	_, ok := err.(*MissingWriter)
+	return ok
 }
 
 func VideoWriterFile(name string, fps float64, width int, height int) (w *Writer) {
@@ -51,6 +61,9 @@ func (w *Writer) Write(img gocv.Mat) error {
 	err := w.updateIfNeeded()
 	if err != nil {
 		return err
+	}
+	if w.writer == nil {
+		return &MissingWriter{}
 	}
 
 	return w.writer.Write(img)

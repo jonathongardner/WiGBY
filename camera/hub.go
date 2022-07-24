@@ -71,13 +71,14 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 		}()
 	}
 
+	// close clients and recorder
 	defer func() {
 		log.Infof("Hub finishing running, closing %v clients", len(h.clients))
 		for _, client := range h.clients {
 			delete(h.clients, client.Identifier)
 			close(client.send)
 		}
-		close(recorder.send)
+		recorder.Close()
 		// wait for clients to all be closed
 		wgClients.Wait()
 	}()
@@ -129,10 +130,7 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 
 			// send image to be saved, skip if video still writing or
 			// if maybe its closed
-			select {
-			case recorder.send <- img:
-			default:
-			}
+			recorder.updateImageIfWaiting(&img)
 		}
 	}
 }
