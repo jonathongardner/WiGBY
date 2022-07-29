@@ -1,4 +1,4 @@
-package camera
+package cvis1
 
 import (
 	"fmt"
@@ -44,51 +44,12 @@ func (h *Hub) NewClient(conn *websocket.Conn, ipAddress string, name string) (*C
 
 func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 	var wgClients sync.WaitGroup
-	//-----------Camera Setup---------------
-	webcam, err := gocv.OpenVideoCapture(deviceID)
-	if err != nil {
-		return fmt.Errorf("Device closed starting: %v (%v)", deviceID, err)
-	}
-	log.Infoln("Started camera")
 
-	defer webcam.Close()
-
-	img := gocv.NewMat()
-	defer img.Close()
-
-	// create recorder
-	recorder := NewRecorder(output)
-	if output != "" {
-		log.Infof("Saving video to %v", output)
-		wgClients.Add(1)
-		go func() {
-			defer wgClients.Done()
-			err := recorder.writePump()
-			// error could be raised here, need to maybe catch and exit idk
-			if err != nil {
-				log.Infof("Error trying to save: %v", err)
-			}
-		}()
-	}
-
-	// close clients and recorder
-	defer func() {
-		log.Infof("Hub finishing running, closing %v clients", len(h.clients))
-		for _, client := range h.clients {
-			delete(h.clients, client.Identifier)
-			close(client.send)
-		}
-		recorder.Close()
-		// wait for clients to all be closed
-		wgClients.Wait()
-	}()
-	//-----------Camera Setup---------------
-
-	log.Infoln("Camera hub listening for clients")
+	log.Infoln("Computer vision hub listening for clients")
 	for {
 		select {
 		case <- ctx.Done():
-			log.Info("Closing camera hub...")
+			log.Info("Closing computer vision hub...")
 			return nil
 		case client := <-h.register:
 			wgClients.Add(1)
@@ -97,13 +58,13 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 				client.writePump()
 			}()
 			h.clients[client.Identifier] = client
-			log.Infof("%v camera clients connected", len(h.clients))
+			log.Infof("%v computer vision clients connected", len(h.clients))
 		case client := <-h.unregister:
 			if _, ok := h.clients[client.Identifier]; ok {
 				delete(h.clients, client.Identifier)
 				close(client.send)
 			}
-			log.Infof("%v camera clients connected", len(h.clients))
+			log.Infof("%v clients connected", len(h.clients))
 		default:
 			if ok := webcam.Read(&img); !ok {
 				return fmt.Errorf("Device closed reading: %v (%v)", deviceID, err)
@@ -130,7 +91,10 @@ func (h *Hub) Run(deviceID int, output string, ctx context.Context) (error) {
 
 			// send image to be saved, skip if video still writing or
 			// if maybe its closed
-			recorder.updateImageIfWaiting(&img)
+			select {
+			case recorder.send <- img:
+			default:
+			}
 		}
 	}
 }

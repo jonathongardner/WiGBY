@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/jonathongardner/wegyb/camera"
+	"github.com/jonathongardner/wegyb/cvision"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/websocket"
@@ -38,7 +39,7 @@ func middleware(next http.Handler) http.Handler {
 	})
 }
 
-func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*http.Server) {
+func NewServer(host string, videoLocation string, ch *camera.Hub, cvh *cvision.Hub, ui fs.FS) (*http.Server) {
 	// apiV1 := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 	// })
 	// http.Handle("/api/v1/offer", middleware(apiV1))
@@ -53,6 +54,16 @@ func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*ht
 			return
 		}
 		ch.NewClient(conn, ipAddress, "")
+	})
+
+	apiV1Cvision := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ipAddress := r.Context().Value("ipAddress").(string)
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		cvh.NewClient(conn, ipAddress, "")
 	})
 
 	apiV1Videos := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +86,7 @@ func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*ht
 	serverMux.Use(middleware)
 	// websocket for streaming
 	serverMux.Handle("/api/v1/mjpeg", apiV1Mjpeg).Methods("GET")
+	serverMux.Handle("/api/v1/computer-vision", apiV1Cvision).Methods("GET")
 	// video crud
 	serverMux.Handle("/api/v1/recordings", apiV1Videos).Methods("GET")
 	serverMux.Handle("/api/v1/recordings/{filename}", apiV1Video).Methods("GET")
