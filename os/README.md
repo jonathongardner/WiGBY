@@ -57,6 +57,14 @@ EOF"
 sudo systemctl unmask hostapd
 sudo systemctl disable wpa_supplicant.service
 ```
+1. Setup wegyb app folder (use env file so we can update env without changing service file)
+```bash
+sudo mkdir -p /var/lib/wegyb/video
+sudo bash -c "cat > /var/lib/wegyb/conf.env << EOF
+WEGYB_HOST=0.0.0.0
+WEGYB_OUTPUT=/var/lib/wegyb/video
+EOF"
+```
 1. Setup wegyb
 ```bash
 sudo bash -c "cat > /etc/systemd/system/wegyb.service << EOF
@@ -69,7 +77,8 @@ Type=simple
 Restart=always
 RestartSec=3
 User=root
-ExecStart=/bin/mjpeg-streamer 0 0.0.0.0:3000
+EnvironmentFile=/var/lib/wegyb/conf.env
+ExecStart=/usr/bin/wegyb s
 
 [Install]
 WantedBy=multi-user.target
