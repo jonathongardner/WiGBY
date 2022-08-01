@@ -4,7 +4,8 @@ import { useStorage } from '@vueuse/core'
 export const useSettingStore = defineStore('settings', {
   state: () => {
     return {
-      flipCamera: useStorage('flipCamera', false)
+      flipCamera: useStorage('flipCamera', false),
+      staleImage: useStorage('staleImage', 0.5)
     }
   },
   // could also be defined as
@@ -13,6 +14,7 @@ export const useSettingStore = defineStore('settings', {
     reset() {
       console.log('Reset!')
       this.flipCamera = false
+      this.staleImage = 0.5
     },
   },
 })

@@ -6,6 +6,14 @@
       </div>
       <SwitchBox class="switch u-pull-right" v-model='settings.flipCamera' />
     </div>
+    <div class='option'>
+      <div>
+        Stale stream
+      </div>
+      <div>
+        <input type="number" min="0.1" step="0.1" v-model='settings.staleImage'> s
+      </div>
+    </div>
     <div class='reset'>
       <button class='button' @click='reset'>Reset</button>
     </div>

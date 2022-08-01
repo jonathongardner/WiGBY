@@ -33,7 +33,8 @@ export default {
     clearImage () {
       this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
     },
-    clearIfStale: debounce(function() {
+    clearIfStale () { }, // set to debounce `..Raw` method later
+    clearIfStaleRaw () {
       this.clearImage()
       const width = this.ctx.canvas.width / 4
       for(let i = 0; i < 4; i++) {
@@ -42,7 +43,7 @@ export default {
         this.ctx.fillStyle = (i % 2 === 0 ? 'blue' : 'black')
         this.ctx.fill()
       }
-    }),
+    },
     setSocket () {
       this.socket = new WebSocket(`ws://${location.host}/api/v1/mjpeg`)
       // this.socket.binaryType = "arraybuffer"
@@ -63,6 +64,9 @@ export default {
     // wait to set onload till ctx is set
     this.image.onload = this.imageLoad
     this.setSocket()
+    // if this is changed in another window wont be picked up until reload,
+    // but think that should be fine
+    this.clearIfStale = debounce(this.clearIfStaleRaw, this.settings.staleImage * 1000)
   },
   unmounted () {
     this.socket.onclose = () => {}

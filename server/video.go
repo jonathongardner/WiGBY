@@ -5,6 +5,9 @@ import (
 	"path/filepath"
 	"net/http"
 	"errors"
+	"strconv"
+	"io"
+	"sort"
 
 	// log "github.com/sirupsen/logrus"
 )
@@ -35,6 +38,9 @@ func videoFiles(output string) *Response {
 			}
 		}
 	}
+	sort.Slice(toReturn, func(i, j int) bool {
+		return toReturn[i].Name < toReturn[j].Name
+	})
 	return NewSuccessJsonResponse(toReturn, http.StatusOK)
 }
 
@@ -45,18 +51,24 @@ func videoFile(output string, filename string) *Response {
 		return NewErrorResponse("Unknown file", 404, nil)
 	}
 
-	fileBytes, err := os.ReadFile(name)
+	file, err := os.Open(name)
 	if errors.Is(err, os.ErrNotExist) {
 		return NewErrorResponse("Unknown file", 404, err)
 	} else if err != nil {
 		return NewErrorResponse("Error getting file", 500, err)
 	}
 
+	info, err := file.Stat()
+	if err != nil {
+		return NewErrorResponse("Error getting file", 500, err)
+	}
+
 	write := func(w http.ResponseWriter) {
-		w.Header().Set("Content-Type", contentType)
 		w.Header().Set("Content-Disposition", "attachment; filename=" + filename)
+		w.Header().Set("Content-Type", contentType)
+		w.Header().Set("Content-Length", strconv.FormatInt(info.Size(), 10))
 		w.WriteHeader(http.StatusOK)
-		w.Write(fileBytes)
+		io.Copy(w, file)
 	}
 	return &Response{Write: write}
 }
