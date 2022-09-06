@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"context"
 
+	"github.com/jonathongardner/wegyb/app"
 	"github.com/jonathongardner/wegyb/camera"
 
 	log "github.com/sirupsen/logrus"
@@ -55,6 +56,9 @@ func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*ht
 		ch.NewClient(conn, ipAddress, "")
 	})
 
+	apiV1Version := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		NewSuccessJsonResponse(map[string]string{ "version": app.Version }, 200).Write(w)
+	})
 	apiV1Videos := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		videoFiles(videoLocation).Write(w)
 	})
@@ -79,6 +83,8 @@ func NewServer(host string, videoLocation string, ch *camera.Hub, ui fs.FS) (*ht
 	serverMux.Handle("/api/v1/recordings", apiV1Videos).Methods("GET")
 	serverMux.Handle("/api/v1/recordings/{filename}", apiV1Video).Methods("GET")
 	serverMux.Handle("/api/v1/recordings/{filename}", deleteApiV1Video).Methods("DELETE")
+	// settings
+	serverMux.Handle("/api/v1/version", apiV1Version).Methods("GET")
 	// ui
 	serverMux.PathPrefix("/").Handler(http.FileServer(http.FS(ui))).Methods("GET")
 	// fallback

@@ -2,6 +2,14 @@
   <div class="seperated-flex">
     <div class='option'>
       <div>
+        WeGYB Version
+      </div>
+      <div v-if='settings.version'>
+        {{ settings.version }}
+      </div>
+    </div>
+    <div class='option'>
+      <div>
         Flip Camera
       </div>
       <SwitchBox class="switch u-pull-right" v-model='settings.flipCamera' />
@@ -26,6 +34,7 @@ import SwitchBox from '@/components/form/switch'
 import { useSettingStore } from '@/stores/settings'
 
 const settings = useSettingStore()
+settings.upsertVersion()
 
 const reset = () => {
   if (confirm(`Are you sure you want to reset your settings?`)) {

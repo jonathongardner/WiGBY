@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"io/fs"
+	"github.com/jonathongardner/wegyb/app"
 
 	"github.com/urfave/cli/v2"
 )
@@ -19,7 +20,7 @@ func Run(uiPassed fs.FS) (error) {
 
 	app := &cli.App{
 		Name: "wegyb",
-		Version: "0.0.1",
+		Version: app.Version,
 		Usage: "We got your back!",
 		Commands: []*cli.Command{
   		serverCommand,

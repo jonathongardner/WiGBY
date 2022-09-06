@@ -19,12 +19,12 @@ const routes = [
     path: '/help',
     name: 'Help',
     component: () => import('../views/Help.vue'),
-    meta: { back: true }
+    meta: { back: true, footer: true }
   }, {
     path: '/settings',
     name: 'Settings',
     component: () => import('../views/Settings.vue'),
-    meta: { back: true }
+    meta: { back: true, footer: true }
   }, {
     path: '/',
     name: 'Home',
@@ -33,7 +33,8 @@ const routes = [
       path: '/camera',
       name: 'Camera',
       component: Camera,
-    }]
+    }],
+    meta: { footer: true }
   },
 ]
 
